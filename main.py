@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from discord.ext import commands
 from nltk.sentiment import SentimentIntensityAnalyzer
 import nltk
+from keep_alive import keep_alive
 nltk.download('vader_lexicon')
 
 TOKEN = os.environ.get('DISCORD_BOT_TOKEN')
@@ -39,17 +40,24 @@ def plot_sentiment_scores():
             timestamp, score = line.strip().split(',')
             timestamps.append(timestamp)
             scores.append(float(score))
+
+    num_msgs = len(timestamps)
+    interval = num_msgs // 5
+    if interval == 0:
+        interval = 1
+
     plt.plot(range(len(scores)), scores)
     plt.xlabel('Message Index')
     plt.ylabel('Sentiment Score')
     plt.title('Sentiment Analysis of the Channel')
+    plt.xticks(range(0, num_msgs, interval), range(0, num_msgs, interval), rotation=45)
     plt.tight_layout()
 
-    
     filename = "sentiment_scores.png"
     if os.path.exists(filename):
         os.remove(filename)
     plt.savefig(filename)
 
 
+keep_alive()
 client.run(TOKEN)
